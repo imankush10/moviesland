@@ -9,19 +9,15 @@ const App = () => {
   const [movies, setMovies] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const searchMovies = async (title) => {
-    const response = await fetch(`${API_URL}&s=${title}`);
-    const data = await response.json();
-    setMovies(data.Search);
-  };
-
   let timeout;
-  const debouncedSearchMovies = (title)=>{
+  const searchMovies = (title) => {
     clearTimeout(timeout);
-    timeout = setTimeout(()=>{
-      searchMovies(title)
-    }, 500)
-  }
+    timeout = setTimeout(async () => {
+      const response = await fetch(`${API_URL}&s=${title}`);
+      const data = await response.json();
+      setMovies(data.Search);
+    }, 400);
+  };
 
   useEffect(() => {
     searchMovies("Avengers");
@@ -38,16 +34,20 @@ const App = () => {
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
-            debouncedSearchMovies(e.target.value);
+            searchMovies(e.target.value);
           }}
         />
-        <img src={SearchIcon} alt="search" onClick={() => searchMovies(searchTerm)} />
+        <img
+          src={SearchIcon}
+          alt="search"
+          onClick={() => searchMovies(searchTerm)}
+        />
       </div>
 
       {movies?.length > 0 ? (
         <div className="container">
-          {movies.map((movie) => (
-            <MovieCard movie={movie} />
+          {movies.map((movie, key) => (
+            <MovieCard movie={movie} key={key} />
           ))}
         </div>
       ) : (
